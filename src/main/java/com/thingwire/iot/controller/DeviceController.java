@@ -1,8 +1,10 @@
 package com.thingwire.iot.controller;
 
+import com.thingwire.iot.dto.CommandRequest;
 import com.thingwire.iot.entity.Device;
 import com.thingwire.iot.service.DeviceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,8 +43,14 @@ public class DeviceController {
     }
 
     @PostMapping("/{id}/send-command")
-    public ResponseEntity<String> sendCommand(@PathVariable String id, @RequestParam String command) {
-        deviceService.sendCommandToDevice(id, command);
+    public ResponseEntity<String> sendCommand(@PathVariable String id, @RequestBody CommandRequest commandRequest) {
+        boolean isDevicePresent = deviceService.getDeviceById(id).isPresent();
+
+        if (!isDevicePresent) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Device not found: " + id);
+        }
+
+        deviceService.sendCommandToDevice(id, commandRequest.getCommand());
         return ResponseEntity.ok("Command sent to device: " + id);
     }
 

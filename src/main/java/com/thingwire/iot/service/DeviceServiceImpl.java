@@ -1,8 +1,11 @@
 package com.thingwire.iot.service;
 
 import com.thingwire.iot.entity.Device;
+import com.thingwire.iot.listener.DeviceResponseListener;
 import com.thingwire.iot.repository.DeviceRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class DeviceServiceImpl implements DeviceService {
+    private static final Logger logger = LoggerFactory.getLogger(DeviceServiceImpl.class);
     private final DeviceRepository deviceRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -51,6 +55,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public void sendCommandToDevice(String id, String command) {
+        logger.info("Received device command: " + command + " for device id: " + id);
         kafkaTemplate.send(DEVICE_COMMANDS_TOPIC, "Command sent to device " + id + ": " + command);
     }
 
